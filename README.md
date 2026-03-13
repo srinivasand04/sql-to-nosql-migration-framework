@@ -9,8 +9,6 @@ cloud cost estimation.
 ---
 
 ## System Architecture
-
-```
 ┌─────────────────────────────────────────────────────────┐
 │              SQL-to-NoSQL Migration Pipeline            │
 │                                                         │
@@ -19,7 +17,7 @@ cloud cost estimation.
 │       ▼                                                 │
 │  ┌─────────────────┐                                    │
 │  │  Schema Profiler│  → Table stats, FK detection,      │
-│  │  (profiler.py)  │    cardinality, null ratios         │
+│  │  (profiler.py)  │    cardinality, null ratios        │
 │  └────────┬────────┘                                    │
 │           │                                             │
 │           ▼                                             │
@@ -31,7 +29,7 @@ cloud cost estimation.
 │           ▼                                             │
 │  ┌─────────────────┐                                    │
 │  │  Mapping Engine │  → Rule-based: embed/reference/    │
-│  │  (mapping.py)   │    snapshot decisions               │
+│  │  (mapping.py)   │    snapshot decisions              │
 │  └────────┬────────┘                                    │
 │           │                                             │
 │           ▼                                             │
@@ -44,13 +42,18 @@ cloud cost estimation.
 │  ┌─────────────────┐                                    │
 │  │ Cost Estimator  │  → Storage, IO, compute estimates  │
 │  │ (estimator.py)  │    vs RDS baseline comparison      │
-│  └─────────────────┘                                    │
+│  └────────┬────────┘                                    │
+│           │                                             │
+│           ▼                                             │
+│  ┌──────────────────────┐                                │
+│  │ Cloud Cost Comparator│ → Compare AWS, Azure, GCP,    │
+│  │ (cloud_cost_comparator) │ DigitalOcean infrastructure │
+│  └──────────────────────┘                                │
 │                                                         │
-│  Output: migration_summary.json + mongodb_schemas.json  │
-└─────────────────────────────────────────────────────────┘
-```
+│ Output: migration_summary.json + mongodb_schemas.json   │
+└─────────────────────────────────────────────────────────┘---
 
----
+
 
 ## Folder Structure
 
@@ -72,16 +75,16 @@ sql_to_nosql_migration/
 │   ├── workload_analyzer.py       # Query simulation + access patterns
 │   ├── mapping_engine.py          # Rule-based embed/reference decisions
 │   ├── nosql_generator.py         # MongoDB schema + example documents
-│   └── cost_estimator.py          # Cloud cost model
+│   └── cost_estimator.py          # NoSQL cost estimation model
 │
 ├── output/                        # Auto-created on run
 │   ├── mongodb_schemas.json       # Full schema definitions
-│   └── migration_summary.json    # Pipeline summary
+│   └── migration_summary.json     # Pipeline summary
 │
+├── cloud_cost_comparator.py       # Multi-cloud cost comparison
 ├── main.py                        # Pipeline runner
 ├── requirements.txt
 └── README.md
-```
 
 ---
 
@@ -175,6 +178,39 @@ Also estimates RDS baseline for comparison.
 pip install -r requirements.txt
 ```
 
+6. Multi-Cloud Cost Comparator (cloud_cost_comparator.py)
+
+This module compares estimated infrastructure costs across multiple cloud providers.
+
+Providers included:
+
+Provider	Database Service
+AWS	DynamoDB / MongoDB Atlas
+Azure	Cosmos DB
+Google Cloud	Firestore
+DigitalOcean	Managed MongoDB
+
+The comparator calculates approximate monthly costs using:
+
+Storage usage
+
+Read operations
+
+Write operations
+
+Network traffic
+
+Example simplified formula:
+
+Total Cost =
+(Storage × StoragePrice)
++ (Reads × ReadPrice)
++ (Writes × WritePrice)
++ (Network × NetworkPrice)
+
+This comparison helps evaluate which cloud platform provides the most cost-efficient infrastructure for the transformed NoSQL workload.
+
+
 ### Run the full pipeline
 ```bash
 python main.py
@@ -210,33 +246,31 @@ python data/generate_dataset.py
 ╚══════════════════════════════════════════════════════════╝
 
 STEP 0: DATASET PREPARATION
-  Found 6 CSV files
+Found 6 CSV files
 
 STEP 1: SCHEMA PROFILER
-  Tables: users(200), products(100), orders(500),
-          order_items(1475), reviews(400), events(2000)
-  Foreign keys detected: 7
+Tables analyzed
 
 STEP 2: WORKLOAD ANALYZER
-  Simulated: 10,000 queries
-  Read/Write ratio: 2.03:1
-  Join ratio: 23.93%
-  Hot pattern: INSERT events + JOIN orders/order_items
+10,000 queries simulated
 
 STEP 3: MAPPING ENGINE
-  Recommended: DOCUMENT (MongoDB)
-  Confidence: 83.9%
-  Rules fired: R1, R4, R6, R6, R7, R8
+Recommended model: MongoDB
 
 STEP 4: NOSQL SCHEMA GENERATOR
-  Collections: users, products, reviews, events,
-               order_items_analytics
-  Indexes: 17 total
+5 collections created
 
 STEP 5: COST ESTIMATOR
-  MongoDB/month:  ~$25.43
-  RDS baseline:   ~$87.90
-  Savings:         71.1%
+MongoDB cost ≈ $25/month
+
+STEP 6: CLOUD COST COMPARISON
+
+AWS           : $0.0296 / month
+Azure         : $0.0294 / month
+GCP           : $0.0280 / month
+DigitalOcean  : $0.0030 / month
+
+Best provider → DigitalOcean
 ```
 
 ---
