@@ -1,0 +1,59 @@
+{
+  "recommendation": {
+    "nosql_model": "document",
+    "target_db": "MongoDB",
+    "confidence": 0.5
+  },
+  "schema_stats": {
+    "events": {
+      "rows": 2000,
+      "columns": 7
+    },
+    "order_items": {
+      "rows": 1475,
+      "columns": 6
+    },
+    "orders": {
+      "rows": 500,
+      "columns": 5
+    },
+    "products": {
+      "rows": 100,
+      "columns": 6
+    },
+    "reviews": {
+      "rows": 400,
+      "columns": 6
+    },
+    "users": {
+      "rows": 200,
+      "columns": 6
+    }
+  },
+  "workload": {
+    "total_queries": 10000,
+    "read_write_ratio": 2.03,
+    "join_ratio": 0.2393
+  },
+  "cost": {
+    "storage_gb": 0.0016,
+    "monthly_usd": 25.4322,
+    "rds_baseline_usd": 87.9002,
+    "savings_pct": 71.07
+  },
+  "collections": [
+    "users",
+    "products",
+    "reviews",
+    "events",
+    "order_items_analytics"
+  ],
+  "rules_fired": [
+    "R4: 'events' table detected \u2192 Time-Series / Wide-Column for event data",
+    "R6: users\u2192orders (avg 12) \u2192 EMBED orders array in user document",
+    "R6: orders\u2192order_items (avg 3) \u2192 EMBED items array in order sub-document",
+    "R7: products\u2192reviews (can grow) \u2192 REFERENCE reviews; snapshot avg_rating on product doc",
+    "R8: reviews JOIN products (display) \u2192 SNAPSHOT product_name inside review doc",
+    "R4: events table \u2192 TIME-SERIES collection with TTL; no embedding"
+  ]
+}

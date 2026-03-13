@@ -1,0 +1,401 @@
+id,user_id,product_id,rating,review_text,created_at
+1,161,69,2,"Fast shipping, good item.",2022-07-11
+2,153,15,3,Would not recommend.,2023-12-28
+3,9,35,4,Not worth the price.,2023-05-24
+4,61,48,4,Absolutely love it!,2022-08-10
+5,135,39,2,Not worth the price.,2023-01-19
+6,10,100,2,Not worth the price.,2023-03-31
+7,130,4,4,Excellent quality.,2022-07-14
+8,88,62,5,Absolutely love it!,2022-12-02
+9,37,99,1,Excellent quality.,2022-07-30
+10,186,5,4,"Fast shipping, good item.",2024-01-01
+11,134,15,1,Absolutely love it!,2022-02-15
+12,176,77,1,Would not recommend.,2023-04-24
+13,12,14,5,Absolutely love it!,2022-01-24
+14,148,98,3,Decent but could be better.,2022-11-25
+15,52,25,3,Absolutely love it!,2023-06-30
+16,82,99,4,Not worth the price.,2022-10-07
+17,39,21,3,Not worth the price.,2022-01-16
+18,160,72,5,Not worth the price.,2022-07-31
+19,139,45,5,Would not recommend.,2022-10-05
+20,37,91,3,Decent but could be better.,2022-06-25
+21,19,40,5,Would not recommend.,2023-07-08
+22,114,7,2,Great product!,2023-04-28
+23,173,7,1,"Fast shipping, good item.",2022-02-25
+24,23,55,4,Excellent quality.,2023-12-23
+25,153,76,4,Would not recommend.,2022-11-16
+26,86,26,5,Not worth the price.,2023-04-22
+27,146,17,1,Average experience.,2022-04-10
+28,117,40,4,Average experience.,2022-08-26
+29,58,19,5,Absolutely love it!,2023-01-08
+30,101,24,3,Would not recommend.,2023-04-10
+31,125,4,1,Average experience.,2022-04-26
+32,90,62,4,Excellent quality.,2022-10-17
+33,197,45,5,Excellent quality.,2023-06-05
+34,27,52,1,Would not recommend.,2023-07-24
+35,167,10,3,Average experience.,2023-02-15
+36,152,53,2,Decent but could be better.,2023-07-16
+37,41,62,4,Not worth the price.,2022-12-15
+38,54,89,5,"Fast shipping, good item.",2023-03-22
+39,146,44,5,Decent but could be better.,2022-06-27
+40,170,86,1,Average experience.,2022-04-28
+41,152,77,4,Would not recommend.,2023-07-23
+42,25,57,2,Absolutely love it!,2023-02-20
+43,18,77,1,"Fast shipping, good item.",2022-12-02
+44,127,83,1,Not worth the price.,2022-08-11
+45,36,75,1,Excellent quality.,2023-11-08
+46,39,58,5,Absolutely love it!,2023-02-04
+47,158,74,4,Decent but could be better.,2022-07-30
+48,175,41,3,Absolutely love it!,2023-03-22
+49,184,45,1,Great product!,2023-09-19
+50,131,52,2,Absolutely love it!,2022-03-05
+51,95,71,1,Great product!,2023-12-22
+52,144,46,1,Absolutely love it!,2022-02-01
+53,61,56,5,"Fast shipping, good item.",2023-10-03
+54,82,92,4,"Fast shipping, good item.",2023-01-26
+55,112,70,2,Excellent quality.,2023-05-02
+56,36,25,5,"Fast shipping, good item.",2023-01-04
+57,107,20,3,Excellent quality.,2022-05-18
+58,3,10,1,Excellent quality.,2023-05-14
+59,169,56,2,Not worth the price.,2022-05-21
+60,165,54,4,"Fast shipping, good item.",2023-10-01
+61,47,59,5,"Fast shipping, good item.",2023-07-20
+62,116,50,3,Decent but could be better.,2022-07-10
+63,109,78,1,Average experience.,2022-08-31
+64,183,65,3,"Fast shipping, good item.",2023-07-14
+65,148,47,1,Great product!,2023-08-05
+66,124,91,3,Not worth the price.,2023-08-18
+67,124,89,1,Excellent quality.,2023-06-24
+68,193,100,3,Average experience.,2023-06-14
+69,21,67,5,Not worth the price.,2022-09-09
+70,121,81,1,Absolutely love it!,2023-09-20
+71,14,44,5,Great product!,2023-04-26
+72,117,66,4,Would not recommend.,2023-03-08
+73,91,38,3,Excellent quality.,2022-02-06
+74,178,77,3,Absolutely love it!,2022-03-04
+75,162,61,5,Excellent quality.,2023-08-10
+76,14,85,3,Great product!,2022-10-21
+77,125,11,2,Not worth the price.,2022-10-12
+78,65,17,5,Absolutely love it!,2022-10-09
+79,66,2,1,Excellent quality.,2023-08-29
+80,190,20,4,Would not recommend.,2022-06-29
+81,67,90,2,Average experience.,2022-07-05
+82,136,5,3,Not worth the price.,2022-05-29
+83,153,20,4,"Fast shipping, good item.",2023-01-28
+84,61,85,4,Excellent quality.,2022-08-04
+85,148,94,3,Great product!,2023-10-20
+86,68,97,1,Great product!,2022-06-21
+87,119,52,4,Absolutely love it!,2023-05-03
+88,192,97,5,Decent but could be better.,2023-01-24
+89,175,91,4,Average experience.,2022-09-26
+90,38,68,4,Great product!,2022-10-23
+91,115,49,3,Great product!,2022-04-10
+92,137,82,3,"Fast shipping, good item.",2023-09-18
+93,167,35,3,Absolutely love it!,2022-10-01
+94,26,33,5,"Fast shipping, good item.",2023-04-18
+95,198,87,2,Decent but could be better.,2023-06-17
+96,87,87,2,Would not recommend.,2023-07-15
+97,3,87,1,Not worth the price.,2022-01-13
+98,106,13,5,Not worth the price.,2023-12-03
+99,115,45,2,Absolutely love it!,2022-09-15
+100,50,5,1,Not worth the price.,2022-02-28
+101,153,85,2,Not worth the price.,2023-12-27
+102,31,12,5,Excellent quality.,2023-01-20
+103,169,98,5,Excellent quality.,2022-04-24
+104,179,24,3,Absolutely love it!,2023-04-24
+105,170,10,4,Absolutely love it!,2023-03-14
+106,178,86,3,Absolutely love it!,2022-06-15
+107,200,10,3,Great product!,2023-01-27
+108,100,43,1,Absolutely love it!,2022-09-29
+109,46,57,1,Average experience.,2022-07-25
+110,157,51,2,Average experience.,2022-04-22
+111,37,70,4,Decent but could be better.,2023-09-21
+112,165,14,4,Absolutely love it!,2022-04-16
+113,9,10,1,Absolutely love it!,2023-04-02
+114,5,64,2,Great product!,2022-02-08
+115,171,50,3,Excellent quality.,2023-12-18
+116,85,51,5,Great product!,2023-06-12
+117,182,99,4,Average experience.,2023-03-23
+118,104,94,1,Decent but could be better.,2022-01-04
+119,99,89,4,Not worth the price.,2023-08-04
+120,138,46,3,Absolutely love it!,2023-02-15
+121,15,81,1,Would not recommend.,2023-07-02
+122,88,11,4,Absolutely love it!,2023-10-26
+123,52,23,5,Great product!,2023-01-29
+124,170,25,3,"Fast shipping, good item.",2022-04-20
+125,162,89,3,Average experience.,2022-03-28
+126,162,57,2,Excellent quality.,2022-02-06
+127,50,4,5,Decent but could be better.,2023-05-16
+128,100,9,5,Absolutely love it!,2023-05-27
+129,137,58,1,Great product!,2022-12-14
+130,15,44,1,"Fast shipping, good item.",2022-05-02
+131,55,84,5,Average experience.,2023-11-26
+132,138,20,5,Decent but could be better.,2022-03-15
+133,10,95,2,Average experience.,2023-11-01
+134,5,61,5,Great product!,2022-09-06
+135,180,84,2,Great product!,2022-06-26
+136,162,7,3,Not worth the price.,2023-04-13
+137,157,22,5,Not worth the price.,2022-04-19
+138,30,64,5,Decent but could be better.,2022-03-06
+139,52,55,3,"Fast shipping, good item.",2022-11-29
+140,31,88,5,Excellent quality.,2022-11-26
+141,55,98,1,Excellent quality.,2022-12-10
+142,17,16,3,Excellent quality.,2023-03-02
+143,44,90,3,Excellent quality.,2023-03-26
+144,63,75,1,Excellent quality.,2022-04-13
+145,162,79,4,Excellent quality.,2022-01-17
+146,125,11,1,Great product!,2022-07-03
+147,23,91,5,Absolutely love it!,2023-03-03
+148,178,99,4,Excellent quality.,2022-07-31
+149,37,82,3,Average experience.,2023-02-26
+150,62,23,5,Great product!,2023-09-03
+151,47,92,4,Not worth the price.,2023-10-05
+152,78,45,4,Great product!,2023-07-26
+153,61,25,1,Not worth the price.,2023-09-26
+154,93,98,5,Decent but could be better.,2023-04-21
+155,198,81,2,Absolutely love it!,2022-02-24
+156,50,15,2,Average experience.,2023-05-25
+157,46,21,1,Great product!,2023-10-23
+158,94,37,2,"Fast shipping, good item.",2022-09-15
+159,86,79,4,Great product!,2022-04-17
+160,190,7,5,Excellent quality.,2022-06-11
+161,8,63,5,Not worth the price.,2022-03-14
+162,61,93,4,Would not recommend.,2023-03-06
+163,51,96,3,Decent but could be better.,2022-04-23
+164,84,30,1,Decent but could be better.,2023-02-27
+165,52,49,2,Not worth the price.,2023-04-28
+166,150,63,1,"Fast shipping, good item.",2022-05-29
+167,56,79,4,Excellent quality.,2023-02-01
+168,96,18,4,Decent but could be better.,2023-10-10
+169,92,35,2,Would not recommend.,2022-05-11
+170,9,89,5,Great product!,2022-10-15
+171,35,15,4,Average experience.,2023-03-05
+172,44,98,3,Decent but could be better.,2022-10-30
+173,155,21,5,Excellent quality.,2023-08-15
+174,142,30,1,"Fast shipping, good item.",2023-06-19
+175,126,28,5,Average experience.,2023-04-19
+176,72,2,4,Decent but could be better.,2022-09-11
+177,84,56,5,Decent but could be better.,2023-08-29
+178,39,74,1,"Fast shipping, good item.",2022-02-15
+179,11,61,5,Great product!,2023-03-12
+180,136,51,4,Not worth the price.,2023-04-09
+181,127,31,1,Great product!,2023-12-11
+182,188,53,2,Excellent quality.,2023-01-03
+183,76,31,1,Great product!,2023-05-07
+184,172,40,2,Average experience.,2023-08-08
+185,192,75,1,Average experience.,2023-04-20
+186,198,18,4,Excellent quality.,2023-01-15
+187,161,60,1,Not worth the price.,2023-01-30
+188,177,43,5,Great product!,2022-10-31
+189,110,97,3,Decent but could be better.,2023-12-03
+190,21,80,3,Great product!,2023-06-12
+191,173,47,1,Not worth the price.,2023-01-28
+192,94,60,5,Great product!,2023-01-10
+193,94,23,5,Not worth the price.,2023-07-29
+194,182,100,2,Excellent quality.,2022-12-09
+195,62,70,1,Average experience.,2023-08-18
+196,180,27,2,Would not recommend.,2022-12-28
+197,69,65,4,Absolutely love it!,2022-02-25
+198,17,48,3,Average experience.,2023-05-13
+199,129,68,1,Average experience.,2023-12-28
+200,137,87,5,Absolutely love it!,2023-04-08
+201,159,48,1,Decent but could be better.,2023-04-14
+202,23,11,4,Excellent quality.,2022-10-23
+203,20,14,2,Absolutely love it!,2022-04-25
+204,179,19,4,Excellent quality.,2022-07-29
+205,134,81,1,Absolutely love it!,2023-03-03
+206,175,70,2,Average experience.,2022-12-22
+207,108,57,1,Absolutely love it!,2022-07-13
+208,17,3,2,Would not recommend.,2023-02-26
+209,149,44,3,Average experience.,2023-08-31
+210,171,90,5,Average experience.,2023-04-14
+211,78,73,2,Absolutely love it!,2022-06-25
+212,67,30,4,Would not recommend.,2022-10-23
+213,198,7,2,Would not recommend.,2022-10-19
+214,117,22,5,Excellent quality.,2023-12-30
+215,138,37,2,Excellent quality.,2023-12-27
+216,178,86,2,Excellent quality.,2022-09-01
+217,30,6,3,Excellent quality.,2023-03-28
+218,67,48,2,Decent but could be better.,2023-07-30
+219,182,5,3,Would not recommend.,2022-06-01
+220,96,58,5,Excellent quality.,2023-07-01
+221,78,16,1,"Fast shipping, good item.",2023-05-27
+222,197,19,4,Would not recommend.,2022-06-09
+223,2,95,5,Would not recommend.,2023-10-25
+224,181,38,4,Absolutely love it!,2023-08-11
+225,171,19,5,Average experience.,2022-12-13
+226,177,15,4,Great product!,2022-05-23
+227,174,71,1,Absolutely love it!,2022-01-26
+228,103,80,2,Average experience.,2023-01-01
+229,24,42,1,Decent but could be better.,2023-08-21
+230,135,29,3,Decent but could be better.,2022-01-24
+231,22,69,4,Not worth the price.,2023-06-09
+232,101,25,4,Would not recommend.,2023-09-10
+233,155,66,1,Would not recommend.,2023-02-12
+234,38,92,4,Would not recommend.,2023-01-31
+235,96,2,3,Would not recommend.,2022-12-26
+236,79,58,5,Not worth the price.,2022-08-09
+237,187,57,4,Average experience.,2022-10-23
+238,42,94,4,"Fast shipping, good item.",2022-05-23
+239,151,77,1,Excellent quality.,2022-08-01
+240,78,61,5,Would not recommend.,2022-03-09
+241,152,97,4,Not worth the price.,2022-01-07
+242,105,82,3,"Fast shipping, good item.",2022-06-29
+243,143,60,5,Excellent quality.,2022-07-24
+244,48,49,3,Average experience.,2022-02-13
+245,78,75,3,Average experience.,2023-07-27
+246,190,60,2,Great product!,2022-01-03
+247,40,34,3,Average experience.,2022-05-08
+248,168,86,3,"Fast shipping, good item.",2022-07-03
+249,126,89,2,Great product!,2022-05-03
+250,196,36,4,Not worth the price.,2023-09-06
+251,191,47,5,Average experience.,2023-08-03
+252,112,34,4,Not worth the price.,2023-01-18
+253,132,94,5,Great product!,2022-09-23
+254,42,75,1,Excellent quality.,2022-11-24
+255,119,89,2,Would not recommend.,2022-06-17
+256,14,35,3,"Fast shipping, good item.",2023-10-14
+257,92,7,3,Absolutely love it!,2023-06-27
+258,164,10,5,Decent but could be better.,2023-10-06
+259,47,98,1,Excellent quality.,2023-07-11
+260,83,41,3,Absolutely love it!,2023-12-03
+261,179,89,3,Not worth the price.,2023-07-02
+262,149,46,2,Great product!,2022-05-21
+263,133,37,3,Average experience.,2023-02-26
+264,88,21,1,Decent but could be better.,2022-06-08
+265,129,29,2,Not worth the price.,2023-03-04
+266,118,10,1,Excellent quality.,2022-01-18
+267,123,45,3,Would not recommend.,2022-05-23
+268,114,77,5,Would not recommend.,2022-06-26
+269,182,39,1,Not worth the price.,2022-08-16
+270,33,89,2,Decent but could be better.,2022-11-11
+271,33,27,2,Not worth the price.,2023-03-12
+272,177,98,1,Not worth the price.,2022-01-20
+273,199,62,4,Great product!,2022-07-21
+274,28,5,5,Great product!,2023-04-26
+275,31,33,1,Not worth the price.,2022-11-05
+276,171,2,1,Not worth the price.,2023-09-09
+277,53,76,2,Excellent quality.,2023-11-18
+278,90,4,1,Excellent quality.,2022-10-12
+279,149,45,3,Excellent quality.,2023-05-28
+280,200,94,5,Decent but could be better.,2023-06-02
+281,146,9,1,Great product!,2023-06-26
+282,56,92,2,Absolutely love it!,2022-06-25
+283,194,69,1,Not worth the price.,2022-08-08
+284,130,91,4,Would not recommend.,2023-12-16
+285,151,24,4,Not worth the price.,2022-07-05
+286,91,49,4,Decent but could be better.,2023-06-11
+287,59,53,1,Would not recommend.,2022-05-07
+288,120,15,5,Excellent quality.,2023-05-23
+289,196,47,3,Great product!,2022-03-26
+290,84,64,1,"Fast shipping, good item.",2022-10-18
+291,117,77,3,Average experience.,2022-08-20
+292,142,53,3,"Fast shipping, good item.",2022-07-13
+293,18,61,3,Excellent quality.,2022-01-14
+294,173,63,1,"Fast shipping, good item.",2023-03-25
+295,134,85,1,Not worth the price.,2022-05-27
+296,102,52,5,Not worth the price.,2022-06-22
+297,17,47,2,Would not recommend.,2022-07-25
+298,153,52,1,Decent but could be better.,2023-03-11
+299,186,64,3,Absolutely love it!,2023-10-22
+300,103,46,4,"Fast shipping, good item.",2023-05-12
+301,131,36,2,Average experience.,2022-04-21
+302,32,33,4,Average experience.,2022-08-25
+303,161,18,1,Not worth the price.,2022-02-24
+304,18,64,1,Excellent quality.,2023-01-27
+305,155,87,3,Excellent quality.,2022-11-07
+306,160,80,1,Not worth the price.,2023-11-08
+307,193,67,4,Average experience.,2022-07-26
+308,76,85,4,Average experience.,2023-06-01
+309,67,70,3,Great product!,2022-02-02
+310,111,16,4,Average experience.,2022-11-19
+311,97,57,4,Great product!,2022-02-03
+312,46,72,3,Excellent quality.,2023-05-19
+313,111,18,3,"Fast shipping, good item.",2023-05-15
+314,196,15,5,Average experience.,2023-11-07
+315,142,88,5,Average experience.,2023-05-03
+316,144,21,5,Great product!,2023-02-05
+317,68,64,5,"Fast shipping, good item.",2023-09-24
+318,174,46,3,Would not recommend.,2022-03-04
+319,8,76,1,Excellent quality.,2023-01-11
+320,90,95,5,Great product!,2023-10-03
+321,88,49,1,"Fast shipping, good item.",2022-12-20
+322,92,53,3,Great product!,2023-11-09
+323,63,32,2,Absolutely love it!,2023-08-30
+324,22,89,1,Absolutely love it!,2022-04-28
+325,87,22,1,Would not recommend.,2022-02-08
+326,118,85,4,"Fast shipping, good item.",2022-10-01
+327,6,90,4,Great product!,2022-11-21
+328,97,74,4,Would not recommend.,2023-08-10
+329,26,63,1,Decent but could be better.,2022-12-11
+330,128,65,3,Excellent quality.,2023-09-22
+331,77,47,4,Decent but could be better.,2023-05-24
+332,163,10,5,Decent but could be better.,2022-10-22
+333,68,7,3,"Fast shipping, good item.",2022-08-20
+334,160,96,1,Not worth the price.,2023-08-30
+335,87,35,1,Average experience.,2023-03-14
+336,54,45,1,Absolutely love it!,2023-06-01
+337,77,56,5,Would not recommend.,2022-07-24
+338,107,52,3,Average experience.,2023-11-19
+339,196,71,2,Great product!,2023-10-05
+340,181,67,2,Average experience.,2022-08-07
+341,170,96,4,Absolutely love it!,2023-10-16
+342,137,79,4,Great product!,2023-06-19
+343,52,47,4,Excellent quality.,2022-09-04
+344,39,96,3,"Fast shipping, good item.",2023-02-25
+345,82,9,2,"Fast shipping, good item.",2022-10-01
+346,74,83,2,Absolutely love it!,2023-12-05
+347,154,31,4,Decent but could be better.,2022-04-27
+348,39,25,1,Decent but could be better.,2022-11-14
+349,119,63,5,"Fast shipping, good item.",2023-03-09
+350,166,5,2,Excellent quality.,2022-10-07
+351,35,4,3,Absolutely love it!,2023-11-06
+352,141,23,1,Average experience.,2022-01-21
+353,15,11,3,Absolutely love it!,2022-03-07
+354,105,47,1,"Fast shipping, good item.",2022-05-24
+355,61,15,5,Not worth the price.,2023-06-19
+356,171,75,5,Absolutely love it!,2023-05-24
+357,24,31,5,Not worth the price.,2022-11-17
+358,85,75,4,Decent but could be better.,2023-03-10
+359,56,19,1,Excellent quality.,2022-08-08
+360,71,57,4,Absolutely love it!,2023-08-27
+361,15,63,5,Would not recommend.,2023-12-18
+362,29,41,5,"Fast shipping, good item.",2023-05-02
+363,175,32,3,Excellent quality.,2023-01-07
+364,122,92,3,Absolutely love it!,2022-01-22
+365,166,78,1,Great product!,2023-12-09
+366,172,31,3,"Fast shipping, good item.",2022-11-13
+367,164,90,3,Not worth the price.,2023-07-02
+368,61,57,4,Great product!,2023-02-07
+369,66,39,1,Decent but could be better.,2022-11-01
+370,54,21,4,Would not recommend.,2023-10-22
+371,105,5,3,Not worth the price.,2023-05-19
+372,121,95,4,Would not recommend.,2023-03-09
+373,26,21,3,Not worth the price.,2022-12-27
+374,108,78,5,Would not recommend.,2023-04-10
+375,178,4,1,Excellent quality.,2023-10-08
+376,114,83,2,Great product!,2023-02-15
+377,52,81,3,Would not recommend.,2023-08-13
+378,22,15,2,Decent but could be better.,2023-06-13
+379,183,99,2,"Fast shipping, good item.",2022-11-24
+380,116,62,2,Absolutely love it!,2022-06-27
+381,176,76,3,Absolutely love it!,2022-07-23
+382,22,54,3,Excellent quality.,2023-02-07
+383,97,74,2,Great product!,2022-01-24
+384,143,83,5,Decent but could be better.,2022-04-02
+385,119,26,3,Excellent quality.,2022-02-20
+386,103,80,4,Absolutely love it!,2022-06-02
+387,23,48,2,Not worth the price.,2022-01-15
+388,184,68,4,Average experience.,2023-11-21
+389,127,16,2,Decent but could be better.,2022-07-15
+390,69,37,4,"Fast shipping, good item.",2022-05-14
+391,111,27,5,Decent but could be better.,2022-10-17
+392,187,87,2,"Fast shipping, good item.",2022-07-04
+393,105,19,1,Absolutely love it!,2022-09-26
+394,61,80,4,Decent but could be better.,2023-01-14
+395,150,88,4,Not worth the price.,2022-01-11
+396,121,18,3,"Fast shipping, good item.",2023-12-05
+397,55,92,4,"Fast shipping, good item.",2023-09-04
+398,66,10,1,Great product!,2022-02-23
+399,86,31,4,Would not recommend.,2023-09-13
+400,172,77,1,Great product!,2022-09-17

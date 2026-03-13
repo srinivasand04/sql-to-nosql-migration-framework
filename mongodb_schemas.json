@@ -1,0 +1,548 @@
+[
+  {
+    "collection": "users",
+    "description": "Root user document with embedded orders and order items.",
+    "json_schema": {
+      "bsonType": "object",
+      "required": [
+        "user_id",
+        "name",
+        "email"
+      ],
+      "properties": {
+        "user_id": {
+          "bsonType": "int",
+          "description": "Primary key from users.id"
+        },
+        "name": {
+          "bsonType": "string"
+        },
+        "email": {
+          "bsonType": "string"
+        },
+        "country": {
+          "bsonType": "string"
+        },
+        "age": {
+          "bsonType": "int",
+          "minimum": 0,
+          "maximum": 150
+        },
+        "created_at": {
+          "bsonType": "date"
+        },
+        "orders": {
+          "bsonType": "array",
+          "description": "Embedded orders (formerly orders table)",
+          "items": {
+            "bsonType": "object",
+            "required": [
+              "order_id",
+              "status"
+            ],
+            "properties": {
+              "order_id": {
+                "bsonType": "int"
+              },
+              "status": {
+                "bsonType": "string",
+                "enum": [
+                  "pending",
+                  "shipped",
+                  "delivered",
+                  "cancelled"
+                ]
+              },
+              "total_amount": {
+                "bsonType": "double"
+              },
+              "created_at": {
+                "bsonType": "date"
+              },
+              "items": {
+                "bsonType": "array",
+                "description": "Embedded order items",
+                "items": {
+                  "bsonType": "object",
+                  "required": [
+                    "product_id",
+                    "quantity"
+                  ],
+                  "properties": {
+                    "item_id": {
+                      "bsonType": "int"
+                    },
+                    "product_id": {
+                      "bsonType": "int"
+                    },
+                    "quantity": {
+                      "bsonType": "int",
+                      "minimum": 1
+                    },
+                    "unit_price": {
+                      "bsonType": "double"
+                    },
+                    "subtotal": {
+                      "bsonType": "double"
+                    },
+                    "product_name": {
+                      "bsonType": "string",
+                      "description": "Denormalized snapshot"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "example_document": {
+      "_id": "ObjectId('...')",
+      "user_id": 42,
+      "name": "Alice Smith",
+      "email": "alice.smith42@example.com",
+      "country": "US",
+      "age": 29,
+      "created_at": "ISODate('2022-03-15')",
+      "orders": [
+        {
+          "order_id": 101,
+          "status": "delivered",
+          "total_amount": 149.97,
+          "created_at": "ISODate('2023-01-10')",
+          "items": [
+            {
+              "item_id": 1,
+              "product_id": 7,
+              "quantity": 2,
+              "unit_price": 49.99,
+              "subtotal": 99.98,
+              "product_name": "Ultra Widget 7"
+            },
+            {
+              "item_id": 2,
+              "product_id": 15,
+              "quantity": 1,
+              "unit_price": 49.99,
+              "subtotal": 49.99,
+              "product_name": "Elite Gadget 15"
+            }
+          ]
+        },
+        {
+          "order_id": 204,
+          "status": "shipped",
+          "total_amount": 79.99,
+          "created_at": "ISODate('2023-06-02')",
+          "items": [
+            {
+              "item_id": 9,
+              "product_id": 3,
+              "quantity": 1,
+              "unit_price": 79.99,
+              "subtotal": 79.99,
+              "product_name": "Pro Device 3"
+            }
+          ]
+        }
+      ]
+    },
+    "indexes": [
+      {
+        "fields": [
+          "user_id"
+        ],
+        "unique": true,
+        "ttl_seconds": null,
+        "purpose": "Primary lookup"
+      },
+      {
+        "fields": [
+          "email"
+        ],
+        "unique": true,
+        "ttl_seconds": null,
+        "purpose": "Login / dedup"
+      },
+      {
+        "fields": [
+          "orders.order_id"
+        ],
+        "unique": false,
+        "ttl_seconds": null,
+        "purpose": "Lookup by order ID inside users"
+      },
+      {
+        "fields": [
+          "orders.items.product_id"
+        ],
+        "unique": false,
+        "ttl_seconds": null,
+        "purpose": "Find users who bought product X"
+      },
+      {
+        "fields": [
+          "country"
+        ],
+        "unique": false,
+        "ttl_seconds": null,
+        "purpose": "Geo-based queries"
+      }
+    ],
+    "notes": [
+      "Embedding orders + items eliminates 2 JOIN operations for the most common query.",
+      "Average document size: ~4\u20136 KB (12 orders \u00d7 3 items each).",
+      "If a user accumulates >100 orders, consider a reference pattern."
+    ]
+  },
+  {
+    "collection": "products",
+    "description": "Product catalog with embedded review aggregation snapshot.",
+    "json_schema": {
+      "bsonType": "object",
+      "required": [
+        "product_id",
+        "name",
+        "price"
+      ],
+      "properties": {
+        "product_id": {
+          "bsonType": "int"
+        },
+        "name": {
+          "bsonType": "string"
+        },
+        "category": {
+          "bsonType": "string"
+        },
+        "price": {
+          "bsonType": "double",
+          "minimum": 0
+        },
+        "stock": {
+          "bsonType": "int",
+          "minimum": 0
+        },
+        "created_at": {
+          "bsonType": "date"
+        },
+        "review_summary": {
+          "bsonType": "object",
+          "description": "Cached aggregation to avoid costly review joins",
+          "properties": {
+            "avg_rating": {
+              "bsonType": "double"
+            },
+            "total_reviews": {
+              "bsonType": "int"
+            },
+            "last_updated": {
+              "bsonType": "date"
+            }
+          }
+        }
+      }
+    },
+    "example_document": {
+      "_id": "ObjectId('...')",
+      "product_id": 7,
+      "name": "Ultra Widget 7",
+      "category": "Electronics",
+      "price": 49.99,
+      "stock": 142,
+      "created_at": "ISODate('2021-06-01')",
+      "review_summary": {
+        "avg_rating": 4.2,
+        "total_reviews": 38,
+        "last_updated": "ISODate('2024-01-01')"
+      }
+    },
+    "indexes": [
+      {
+        "fields": [
+          "product_id"
+        ],
+        "unique": true,
+        "ttl_seconds": null,
+        "purpose": "Primary lookup"
+      },
+      {
+        "fields": [
+          "category"
+        ],
+        "unique": false,
+        "ttl_seconds": null,
+        "purpose": "Browse by category"
+      },
+      {
+        "fields": [
+          "price"
+        ],
+        "unique": false,
+        "ttl_seconds": null,
+        "purpose": "Price range queries"
+      },
+      {
+        "fields": [
+          "review_summary.avg_rating"
+        ],
+        "unique": false,
+        "ttl_seconds": null,
+        "purpose": "Sort by rating"
+      }
+    ],
+    "notes": [
+      "review_summary is updated asynchronously when new reviews arrive."
+    ]
+  },
+  {
+    "collection": "reviews",
+    "description": "Product reviews with denormalized product and user snapshots.",
+    "json_schema": {
+      "bsonType": "object",
+      "required": [
+        "user_id",
+        "product_id",
+        "rating"
+      ],
+      "properties": {
+        "review_id": {
+          "bsonType": "int"
+        },
+        "user_id": {
+          "bsonType": "int"
+        },
+        "product_id": {
+          "bsonType": "int"
+        },
+        "rating": {
+          "bsonType": "int",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "review_text": {
+          "bsonType": "string"
+        },
+        "created_at": {
+          "bsonType": "date"
+        },
+        "product_snapshot": {
+          "bsonType": "object",
+          "description": "Denormalized for display without product JOIN",
+          "properties": {
+            "name": {
+              "bsonType": "string"
+            },
+            "category": {
+              "bsonType": "string"
+            }
+          }
+        },
+        "user_snapshot": {
+          "bsonType": "object",
+          "properties": {
+            "name": {
+              "bsonType": "string"
+            }
+          }
+        }
+      }
+    },
+    "example_document": {
+      "_id": "ObjectId('...')",
+      "review_id": 55,
+      "user_id": 42,
+      "product_id": 7,
+      "rating": 5,
+      "review_text": "Absolutely love it!",
+      "created_at": "ISODate('2023-08-20')",
+      "product_snapshot": {
+        "name": "Ultra Widget 7",
+        "category": "Electronics"
+      },
+      "user_snapshot": {
+        "name": "Alice Smith"
+      }
+    },
+    "indexes": [
+      {
+        "fields": [
+          "product_id"
+        ],
+        "unique": false,
+        "ttl_seconds": null,
+        "purpose": "All reviews for a product"
+      },
+      {
+        "fields": [
+          "user_id"
+        ],
+        "unique": false,
+        "ttl_seconds": null,
+        "purpose": "All reviews by a user"
+      },
+      {
+        "fields": [
+          "product_id",
+          "rating"
+        ],
+        "unique": false,
+        "ttl_seconds": null,
+        "purpose": "Filtered reviews"
+      }
+    ],
+    "notes": []
+  },
+  {
+    "collection": "events",
+    "description": "Append-only user event stream. Use MongoDB time-series collection.",
+    "json_schema": {
+      "bsonType": "object",
+      "required": [
+        "user_id",
+        "event_type",
+        "timestamp"
+      ],
+      "properties": {
+        "event_id": {
+          "bsonType": "int"
+        },
+        "user_id": {
+          "bsonType": "int"
+        },
+        "event_type": {
+          "bsonType": "string",
+          "enum": [
+            "page_view",
+            "add_to_cart",
+            "purchase",
+            "search",
+            "login",
+            "logout"
+          ]
+        },
+        "product_id": {
+          "bsonType": [
+            "int",
+            "null"
+          ]
+        },
+        "session_id": {
+          "bsonType": "string"
+        },
+        "timestamp": {
+          "bsonType": "date"
+        },
+        "metadata": {
+          "bsonType": "object"
+        }
+      }
+    },
+    "example_document": {
+      "_id": "ObjectId('...')",
+      "event_id": 1204,
+      "user_id": 42,
+      "event_type": "add_to_cart",
+      "product_id": 7,
+      "session_id": "sess_7821",
+      "timestamp": "ISODate('2023-09-01T14:22:00Z')",
+      "metadata": {
+        "ip": "192.168.1.45",
+        "browser": "Chrome"
+      }
+    },
+    "indexes": [
+      {
+        "fields": [
+          "user_id",
+          "timestamp"
+        ],
+        "unique": false,
+        "ttl_seconds": null,
+        "purpose": "User activity feed (most common query)"
+      },
+      {
+        "fields": [
+          "timestamp"
+        ],
+        "unique": false,
+        "ttl_seconds": 7776000,
+        "purpose": "Auto-expire events older than 90 days"
+      },
+      {
+        "fields": [
+          "event_type"
+        ],
+        "unique": false,
+        "ttl_seconds": null,
+        "purpose": "Filter by event type for analytics"
+      }
+    ],
+    "notes": [
+      "Create as time-series collection: timeseries={timeField:'timestamp', metaField:'user_id'}",
+      "Set expireAfterSeconds=7776000 (90 days) for automatic TTL pruning."
+    ]
+  },
+  {
+    "collection": "order_items_analytics",
+    "description": "Flat order items for analytics queries. Primary access is via users\u2192orders\u2192items.",
+    "json_schema": {
+      "bsonType": "object",
+      "required": [
+        "order_id",
+        "product_id"
+      ],
+      "properties": {
+        "item_id": {
+          "bsonType": "int"
+        },
+        "order_id": {
+          "bsonType": "int"
+        },
+        "product_id": {
+          "bsonType": "int"
+        },
+        "quantity": {
+          "bsonType": "int"
+        },
+        "unit_price": {
+          "bsonType": "double"
+        },
+        "subtotal": {
+          "bsonType": "double"
+        }
+      }
+    },
+    "example_document": {
+      "_id": "ObjectId('...')",
+      "item_id": 9,
+      "order_id": 204,
+      "product_id": 3,
+      "quantity": 1,
+      "unit_price": 79.99,
+      "subtotal": 79.99
+    },
+    "indexes": [
+      {
+        "fields": [
+          "product_id"
+        ],
+        "unique": false,
+        "ttl_seconds": null,
+        "purpose": "Sales per product analytics"
+      },
+      {
+        "fields": [
+          "order_id"
+        ],
+        "unique": false,
+        "ttl_seconds": null,
+        "purpose": "Items in an order"
+      }
+    ],
+    "notes": [
+      "Optional collection. Primary path is embedded in users collection."
+    ]
+  }
+]

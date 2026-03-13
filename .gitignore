@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.env
+.venv
+venv/
+
+output/*.json
+*.log
+.streamlit/
+
+.ipynb_checkpoints
