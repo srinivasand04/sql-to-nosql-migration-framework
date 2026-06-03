@@ -10,16 +10,17 @@ __pycache__/
 *.pyo
 *.pyd
 
-# Data — large files, download via kaggle API
+# Data — large files, auto-downloaded via kaggle API
 data/olist_raw/
 data/olist_cache.pkl
 
-# Model weights
+# Model weights — large binaries
 outputs/results/*.pt
 
-# MLflow runs
-outputs/mlruns/
+# MLflow
 mlruns/
+outputs/mlruns/
+mlflow.db
 
 # Output JSONs (regenerated on run)
 output/*.json
@@ -44,3 +45,8 @@ kaggle.json
 
 # Logs
 *.log
+
+# Unrelated project files
+*.pptx
+*.lnk
+*.pdf
