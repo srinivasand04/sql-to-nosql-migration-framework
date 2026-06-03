@@ -1,13 +1,46 @@
+# Virtual environment
+venv/
+env/
+.venv
+*.env
+
+# Python cache
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-*.env
-.venv
-venv/
 
+# Data — large files, download via kaggle API
+data/olist_raw/
+data/olist_cache.pkl
+
+# Model weights
+outputs/results/*.pt
+
+# MLflow runs
+outputs/mlruns/
+mlruns/
+
+# Output JSONs (regenerated on run)
 output/*.json
-*.log
+outputs/results/pipeline_results.json
+
+# Jupyter
+.ipynb_checkpoints/
+
+# VS Code
+.vscode/
+
+# Streamlit
 .streamlit/
 
-.ipynb_checkpoints
+# OS
+.DS_Store
+Thumbs.db
+
+# Kaggle credentials — NEVER commit
+.kaggle/
+kaggle.json
+
+# Logs
+*.log

@@ -2,194 +2,240 @@
 """
 main.py
 ───────
-Master's Thesis Prototype:
-  Intelligent SQL-to-NoSQL Schema Transformation & Cost Estimation
+Master's Thesis — Data Engineering & AI, ESILV Paris
+  Intelligent SQL-to-NoSQL Schema Transformation
+  using Graph Neural Networks, Deep Learning & ML
 
 Pipeline:
-  1. Generate / load dataset
-  2. Schema Profiler
-  3. Workload Analyzer
-  4. Mapping Engine
-  5. NoSQL Schema Generator
-  6. Cost Estimator
-  7. Migration recommendation + export
+  1. Data      — Load Olist (Kaggle, 9 real tables) via kaggle API or cache
+  2. Graph     — Build schema graph (tables=nodes, FK=edges) → PyG Data objects
+  3. Baseline  — XGBoost + RandomForest on flat node features
+  4. GNN       — Train GCN and GAT on 300 workload-variation graphs
+  5. LSTM      — Train workload forecaster on query sequences
+  6. Cost ML   — XGBoost multi-output cost predictor + SHAP
+  7. What-If   — Workload perturbation simulator
+  8. Summary   — Model comparison + final recommendation
+
+Architecture inspired by TacticAI-Lite (GCN/GAT on StatsBomb data).
+Same PyTorch Geometric stack, applied to database schema migration.
 """
 
 import os
 import sys
-import json
 import time
-import subprocess
+import json
+import torch
+import numpy as np
+from pathlib import Path
 
-# ── Path setup ────────────────────────────────────────────────────────────────
-BASE_DIR   = os.path.dirname(os.path.abspath(__file__))
-SRC_DIR    = os.path.join(BASE_DIR, "src")
-DATA_DIR = os.path.join(BASE_DIR, "ecommerce_dataset")
-OUTPUT_DIR = os.path.join(BASE_DIR, "output")
-os.makedirs(OUTPUT_DIR, exist_ok=True)
-##sys.path.insert(0, SRC_DIR)
+ROOT = Path(__file__).resolve().parent
+sys.path.insert(0, str(ROOT))
 
-from schema_profiler    import SchemaProfiler
-from workload_analyzer  import WorkloadAnalyzer
-from mapping_engine     import MappingEngine
-from cost_estimator     import CostEstimator
-from nosql_generator    import NoSQLGenerator
-from cloud_cost_comparator     import CloudCostComparator
+from data.loader          import load_olist, print_schema_summary
+from graph.builder        import build_graph, build_dataset, print_graph_summary
+from ml.baseline          import run_baseline
+from models.gcn           import SchemaGCN, count_parameters
+from models.gat           import SchemaGAT
+from models.lstm_forecaster import WorkloadLSTM, generate_query_sequences
+from train.trainer        import GNNTrainer, LSTMTrainer
+from ml.cost_predictor    import train_cost_predictor
+from whatif.simulator     import WorkloadSimulator
 
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
-
-def separator(title: str = ""):
-    width = 62
-    if title:
-        pad = (width - len(title) - 2) // 2
-        print(f"\n{'─' * pad} {title} {'─' * pad}\n")
-    else:
-        print("\n" + "─" * width + "\n")
+def banner(text: str, width: int = 62):
+    pad = (width - len(text) - 2) // 2
+    print(f"\n{'═'*pad} {text} {'═'*pad}")
 
 
 def step(n: int, label: str):
-    print(f"\n{'═' * 62}")
+    print(f"\n{'═'*62}")
     print(f"  STEP {n}: {label}")
-    print(f"{'═' * 62}")
+    print(f"{'═'*62}")
 
-
-# ── Pipeline ──────────────────────────────────────────────────────────────────
 
 def main():
-    t0 = time.time()
+    t_start = time.time()
 
     print()
     print("╔══════════════════════════════════════════════════════════╗")
-    print("║   SQL-to-NoSQL Schema Transformation Prototype           ║")
-    print("║   Master's Thesis — Data Engineering & AI, ESILV Paris   ║")
+    print("║  SQL-to-NoSQL Migration via GNN + DL + ML                ║")
+    print("║  Master's Thesis — Data Engineering & AI, ESILV Paris   ║")
     print("╚══════════════════════════════════════════════════════════╝")
-    print()
 
-    # ── STEP 0: Dataset ───────────────────────────────────────────────────────
-    step(0, "DATASET PREPARATION")
-    if not os.path.exists(DATA_DIR) or len(os.listdir(DATA_DIR)) == 0:
-        print("  Dataset not found. Generating synthetic e-commerce data...")
-        ##--gen_script = os.path.join(BASE_DIR, "data", "generate_dataset.py")
-        gen_script = os.path.join(BASE_DIR, "generate_dataset.py")
-        subprocess.run([sys.executable, gen_script], check=True)
-    else:
-        csv_files = [f for f in os.listdir(DATA_DIR) if f.endswith(".csv")]
-        print(f"  Found {len(csv_files)} CSV files in {DATA_DIR}")
-        for f in sorted(csv_files):
-            print(f"    • {f}")
+    results = {}
 
-    # ── STEP 1: Schema Profiler ───────────────────────────────────────────────
-    step(1, "SCHEMA PROFILER")
-    profiler = SchemaProfiler(DATA_DIR)
-    profiler.load()
-    profiles = profiler.profile()
-    profiler.print_report()
+    # ── STEP 1: Data ──────────────────────────────────────────────────────────
+    step(1, "DATA LOADING  (Olist Kaggle Dataset)")
+    tables, stats, fks = load_olist(use_cache=True)
+    print_schema_summary(tables, stats)
+    results["n_tables"] = len(tables)
+    results["total_rows"] = sum(s["row_count"] for s in stats.values())
 
-    # ── STEP 2: Workload Analyzer ─────────────────────────────────────────────
-    step(2, "WORKLOAD ANALYZER")
-    analyzer = WorkloadAnalyzer(n_simulated_queries=10_000)
-    workload = analyzer.analyze()
-    analyzer.print_report()
+    # ── STEP 2: Graph Construction ────────────────────────────────────────────
+    step(2, "SCHEMA GRAPH CONSTRUCTION  (PyTorch Geometric)")
+    baseline_graph = build_graph(stats, fks, seed=0)
+    print_graph_summary(baseline_graph)
 
-    # ── STEP 3: Mapping Engine ────────────────────────────────────────────────
-    step(3, "MAPPING ENGINE  (rule-based)")
-    engine = MappingEngine(workload, profiles)
-    mapping = engine.run()
-    engine.print_report(mapping)
+    print(f"\n  Building 300 workload-variation graphs for training ...")
+    dataset = build_dataset(stats, fks, n_scenarios=300)
+    print(f"  ✓ {len(dataset)} graphs  |  {dataset[0].num_nodes} nodes each  "
+          f"|  {dataset[0].edge_index.shape[1]} edges each")
 
-    # ── STEP 4: NoSQL Schema Generator ───────────────────────────────────────
-    step(4, "NOSQL SCHEMA GENERATOR")
-    generator = NoSQLGenerator(profiles, mapping)
-    schemas   = generator.generate()
-    generator.print_report(schemas)
+    # Train / val split (same ratio as TacticAI)
+    split       = int(len(dataset) * 0.8)
+    train_graphs = dataset[:split]
+    val_graphs   = dataset[split:]
 
-    # Export schemas to JSON
-    schema_path = os.path.join(OUTPUT_DIR, "mongodb_schemas.json")
-    generator.export_schemas_json(schemas, schema_path)
+    # ── STEP 3: ML Baseline ───────────────────────────────────────────────────
+    step(3, "ML BASELINE  (XGBoost + RandomForest)")
+    baseline_results = run_baseline(dataset, test_ratio=0.2)
+    results["rf_acc"]  = baseline_results["rf_accuracy"]
+    results["xgb_acc"] = baseline_results["xgb_accuracy"]
 
-    # ── STEP 5: Cost Estimator ────────────────────────────────────────────────
-    step(5, "COST ESTIMATOR")
-    estimator = CostEstimator(profiles, workload)
-    cost_result = estimator.estimate()
-    estimator.print_report(cost_result)
+    # ── STEP 4: GNN Training ─────────────────────────────────────────────────
+    step(4, "GNN TRAINING  (GCN + GAT — PyTorch Geometric)")
 
-    # ── STEP 6: Cloud Cost Comparison ─────────────────────────
-    step(6, "CLOUD PROVIDER COST COMPARISON")
+    in_ch = dataset[0].x.shape[1]   # 8 node features
 
-    storage_gb = cost_result.storage.total_storage_gb
-    reads = workload.total_queries * 0.75
-    writes = workload.total_queries * 0.25
-    network_gb = cost_result.storage.total_storage_gb * 170
+    # GCN
+    print("\n  ── GCN ──────────────────────────────────────────────")
+    gcn = SchemaGCN(in_channels=in_ch, hidden=64, num_classes=3, dropout=0.3)
+    print(f"  Parameters: {count_parameters(gcn):,}")
+    gcn_trainer = GNNTrainer(gcn, dataset, lr=1e-3, epochs=200, patience=15,
+                              model_name="GCN")
+    gcn_results = gcn_trainer.train()
+    results["gcn_val_acc"]    = gcn_results["best_val_acc"]
+    results["gcn_epochs"]     = gcn_results["epochs_trained"]
 
-    cloud = CloudCostComparator(storage_gb, reads, writes, network_gb)
-    cloud.print_report()
+    # GAT
+    print("\n  ── GAT ──────────────────────────────────────────────")
+    gat = SchemaGAT(in_channels=in_ch, hidden=64, heads=4, num_classes=3, dropout=0.2)
+    print(f"  Parameters: {count_parameters(gat):,}")
+    gat_trainer = GNNTrainer(gat, dataset, lr=1e-3, epochs=200, patience=15,
+                              model_name="GAT")
+    gat_results = gat_trainer.train()
+    results["gat_val_acc"]    = gat_results["best_val_acc"]
+    results["gat_epochs"]     = gat_results["epochs_trained"]
 
-    # ── FINAL RECOMMENDATION ──────────────────────────────────────────────────
-    t1 = time.time()
-    separator("MIGRATION RECOMMENDATION")
+    # ── STEP 5: LSTM Workload Forecaster ─────────────────────────────────────
+    step(5, "LSTM WORKLOAD FORECASTER  (Deep Learning)")
+    table_names = baseline_graph.table_names
+    n_tables    = len(table_names)
 
-    c = cost_result.costs
-    s = cost_result.storage
+    print("  Generating query log sequences ...")
+    X_seq, y_seq, _ = generate_query_sequences(
+        table_names, n_sequences=1000, seq_len=30, seed=42
+    )
+    print(f"  ✓ {len(X_seq)} sequences  |  seq_len=30  |  vocab={n_tables} tables")
 
-    print(f"  ┌─────────────────────────────────────────────────────────┐")
-    print(f"  │         FINAL MIGRATION RECOMMENDATION                  │")
-    print(f"  ├─────────────────────────────────────────────────────────┤")
-    print(f"  │  Source      : Relational SQL (6 tables, CSV export)    │")
-    print(f"  │  Target      : MongoDB  (Document Store)                │")
-    print(f"  │  Confidence  : {mapping.confidence:.1%}                                │")
-    print(f"  ├─────────────────────────────────────────────────────────┤")
-    print(f"  │  Collections generated : {len(schemas.collections)}                            │")
-    print(f"  │  Indexes recommended   : {sum(len(c2.indexes) for c2 in schemas.collections)}                           │")
-    print(f"  │  Embedding decisions   : {sum(len(c2.embedding_decisions) for c2 in mapping.collection_mappings)}                            │")
-    print(f"  ├─────────────────────────────────────────────────────────┤")
-    print(f"  │  Estimated data size   : {s.total_storage_gb * 1024:>7.2f} MB                    │")
-    print(f"  │  Est. monthly cost     :   ${c.total_monthly_usd:.4f}                    │")
-    print(f"  │  RDS baseline cost     :   ${c.rds_baseline_usd:.4f}                    │")
-    sign = "SAVING" if c.savings_usd >= 0 else "EXTRA"
-    print(f"  │  Cost delta            :   ${abs(c.savings_usd):.4f} {sign} ({abs(c.savings_pct):.1f}%)          │")
-    print(f"  ├─────────────────────────────────────────────────────────┤")
-    print(f"  │  Key Embedding Decisions:                               │")
-    print(f"  │    ↘ users  ← orders ← order_items  (3-table embed)    │")
-    print(f"  │    ↗ reviews → products  (reference + snapshot)        │")
-    print(f"  │    ⏱ events → time-series collection                   │")
-    print(f"  ├─────────────────────────────────────────────────────────┤")
-    print(f"  │  Output files:                                          │")
-    print(f"  │    • {os.path.relpath(schema_path, BASE_DIR):<53}│")
-    print(f"  └─────────────────────────────────────────────────────────┘")
+    lstm = WorkloadLSTM(num_tables=n_tables, embed_dim=32,
+                        hidden_dim=128, num_layers=2, dropout=0.3)
+    lstm_trainer = LSTMTrainer(lstm, X_seq, y_seq, lr=1e-3,
+                               epochs=100, patience=10, batch_size=32)
+    lstm_res = lstm_trainer.train()
+    results["lstm_val_acc"] = lstm_res["best_val_acc"]
 
-    print(f"\n  Pipeline completed in {t1 - t0:.2f}s")
-    print()
+    # Forecast next hot tables using trained LSTM
+    print("\n  Hot table forecast (next 100 queries):")
+    seed_seq = list(X_seq[0][:10])
+    forecast = lstm.forecast_hot_tables(seed_seq, steps=100)
+    hot_tables = sorted(forecast.items(), key=lambda x: -x[1])[:3]
+    for tid, freq in hot_tables:
+        print(f"    {table_names[tid]:<45}  {freq*100:.1f}% of next queries")
+    results["lstm_top_hot_table"] = table_names[hot_tables[0][0]]
 
-    # ── Save summary JSON ─────────────────────────────────────────────────────
-    summary = {
-        "recommendation": {
-            "nosql_model":  mapping.recommended_nosql_model,
-            "target_db":    "MongoDB",
-            "confidence":   mapping.confidence,
-        },
-        "schema_stats": {
-            t: {"rows": p.row_count, "columns": p.col_count}
-            for t, p in profiles.items()
-        },
-        "workload": {
-            "total_queries":    workload.total_queries,
-            "read_write_ratio": workload.read_write_ratio,
-            "join_ratio":       workload.overall_join_ratio,
-        },
-        "cost": {
-            "storage_gb":      cost_result.storage.total_storage_gb,
-            "monthly_usd":     cost_result.costs.total_monthly_usd,
-            "rds_baseline_usd":cost_result.costs.rds_baseline_usd,
-            "savings_pct":     cost_result.costs.savings_pct,
-        },
-        "collections": [cs.name for cs in schemas.collections],
-        "rules_fired":  mapping.rule_activations,
-    }
-    summary_path = os.path.join(OUTPUT_DIR, "migration_summary.json")
-    with open(summary_path, "w") as f:
-        json.dump(summary, f, indent=2)
-    print(f"  Summary saved → {summary_path}\n")
+    # ── STEP 6: ML Cost Predictor ─────────────────────────────────────────────
+    step(6, "CLOUD COST PREDICTION  (XGBoost + SHAP)")
+    cost_predictor, cost_metrics = train_cost_predictor(n_samples=2000)
+    results["cost_r2_avg"] = np.mean([m["r2"] for m in cost_metrics.values()])
+
+    # Predict cost for current Olist workload
+    total_rows  = sum(s["row_count"] for s in stats.values())
+    storage_gb  = total_rows * 1.5 / 1e6    # rough: 1.5KB avg doc size
+    read_m      = 10.0
+    write_m     = 2.5
+    network_gb  = storage_gb * 2.0
+
+    # Use best GNN prediction for schema_type
+    best_gnn  = gcn if results["gcn_val_acc"] >= results["gat_val_acc"] else gat
+    best_gnn.eval()
+    with torch.no_grad():
+        probs = best_gnn.predict_proba(baseline_graph.x, baseline_graph.edge_index)
+    # Majority vote schema_type across all tables
+    schema_type = int(probs.argmax(dim=-1).mode().values.item())
+
+    cost_pred = cost_predictor.predict_single(
+        storage_gb=storage_gb, read_m=read_m, write_m=write_m,
+        network_gb=network_gb, schema_type=schema_type, n_collections=5
+    )
+    best_cloud = min(cost_pred, key=cost_pred.get)
+
+    print(f"\n  Workload estimate: {storage_gb:.3f} GB storage, "
+          f"{read_m:.0f}M reads/mo, {write_m:.1f}M writes/mo")
+    print(f"\n  {'Provider':<15}  {'Cost/month':>12}")
+    print("  " + "─" * 30)
+    for provider, cost in cost_pred.items():
+        marker = "  ← best" if provider == best_cloud else ""
+        print(f"  {provider:<15}  ${cost:>10.4f}{marker}")
+    results["best_cloud"] = best_cloud
+    results["best_cost"]  = cost_pred[best_cloud]
+
+    # ── STEP 7: What-If Simulation ────────────────────────────────────────────
+    step(7, "WHAT-IF SIMULATION  (workload perturbation)")
+    best_model = gcn if results["gcn_val_acc"] >= results["gat_val_acc"] else gat
+    sim = WorkloadSimulator(best_model, baseline_graph, table_names)
+
+    # Scenario: orders becomes write-heavy (e.g. Black Friday)
+    result_bf = sim.perturb("orders", write_ratio=0.75, read_ratio=0.25)
+    sim.print_delta_table(result_bf)
+
+    # Sweep write_ratio for order_items
+    print("\n  Threshold sweep — order_items write_ratio:")
+    sim.sweep("order_items", "write_ratio",
+              [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9])
+
+    # ── STEP 8: Final Summary ─────────────────────────────────────────────────
+    elapsed = round(time.time() - t_start, 2)
+    banner("FINAL RESULTS")
+
+    gnn_best_name = "GCN" if results["gcn_val_acc"] >= results["gat_val_acc"] else "GAT"
+    gnn_best_acc  = max(results["gcn_val_acc"], results["gat_val_acc"])
+    baseline_best = max(results["rf_acc"], results["xgb_acc"])
+
+    print(f"""
+  ┌──────────────────────────────────────────────────────────┐
+  │           MIGRATION STRATEGY CLASSIFICATION              │
+  ├──────────────────────────────────────────────────────────┤
+  │  Dataset    : Olist (Kaggle) — {results['n_tables']} tables, {results['total_rows']:,} rows
+  │  Graphs     : 300 workload-variation scenarios           │
+  ├──────────────────────────────────────────────────────────┤
+  │  ML Baseline (XGBoost)  : {results['xgb_acc']*100:>5.1f}%                   │
+  │  ML Baseline (RF)       : {results['rf_acc']*100:>5.1f}%                   │
+  │  GCN accuracy           : {results['gcn_val_acc']*100:>5.1f}%  (ep {results['gcn_epochs']:>3})         │
+  │  GAT accuracy           : {results['gat_val_acc']*100:>5.1f}%  (ep {results['gat_epochs']:>3})         │
+  │  Best GNN               : {gnn_best_name} (+{(gnn_best_acc - baseline_best)*100:.1f}pp vs baseline)         │
+  ├──────────────────────────────────────────────────────────┤
+  │  LSTM val accuracy      : {results['lstm_val_acc']*100:>5.1f}%                   │
+  │  Forecasted hot table   : {results['lstm_top_hot_table']:<30}│
+  ├──────────────────────────────────────────────────────────┤
+  │  Cost model avg R²      : {results['cost_r2_avg']:>5.4f}                  │
+  │  Best cloud provider    : {results['best_cloud']:<15}             │
+  │  Est. monthly cost      : ${results['best_cost']:.4f}                    │
+  ├──────────────────────────────────────────────────────────┤
+  │  Pipeline time          : {elapsed}s                          │
+  └──────────────────────────────────────────────────────────┘
+    """)
+
+    # Save results JSON
+    out_dir = ROOT / "outputs" / "results"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    save_path = out_dir / "pipeline_results.json"
+    # Make results JSON-serialisable
+    json_results = {k: (float(v) if isinstance(v, (np.floating, float)) else v)
+                    for k, v in results.items()}
+    with open(save_path, "w") as f:
+        json.dump(json_results, f, indent=2)
+    print(f"  Results saved → {save_path.relative_to(ROOT)}\n")
 
 
 if __name__ == "__main__":
